@@ -3,14 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { Response } from 'express';
 
 @Controller('api')
@@ -33,13 +31,9 @@ export class UsersController {
     res.setHeader('Content-Type', 'image/jpeg');
     res.send(Buffer.from(base64Avatar, 'base64'));
   }
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.usersService.update(+id, updateUserDto);
-  // }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.usersService.remove(+id);
-  // }
+  @Delete('/user/:userId/avatar')
+  async deleteUserAvatar(@Param('userId') userId: string) {
+    return this.usersService.deleteUserAvatar(+userId);
+  }
 }

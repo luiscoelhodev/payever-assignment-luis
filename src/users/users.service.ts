@@ -1,13 +1,13 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './user.schema';
 import { lastValueFrom } from 'rxjs';
 import * as fs from 'fs';
-import { downloadAndSaveAvatar } from './helpers/downloadAndSaveAvatar';
+import { downloadAndSaveAvatar } from '../helpers/downloadAndSaveAvatar';
+import * as path from 'path';
 
 @Injectable()
 export class UsersService {
@@ -56,11 +56,18 @@ export class UsersService {
     const base64Avatar = Buffer.from(avatarBuffer).toString('base64');
     return base64Avatar;
   }
-  // async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-  //   return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
-  // }
 
-  // async remove(id: string): Promise<User> {
-  //   return this.userModel.findByIdAndRemove(id);
-  // }
+  async deleteUserAvatar(userId: number): Promise<void> {
+    const user = await this.userModel.findOne({ id: userId });
+    if (!user || !user.avatar) {
+      throw new NotFoundException(
+        `User with id ${userId} not found or has no avatar`,
+      );
+    }
+    const avatarPath = path.resolve(process.cwd(), 'src/avatars', user.avatar);
+    await fs.promises.unlink(avatarPath);
+
+    user.avatar = '';
+    await user.save();
+  }
 }
