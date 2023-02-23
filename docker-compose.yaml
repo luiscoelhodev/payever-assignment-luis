@@ -19,8 +19,10 @@ services:
     networks:
       - payever
     depends_on:
-      - mongo
-      - rabbitmq
+      mongo:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   mongo:
     image: mongo:latest
@@ -40,6 +42,11 @@ services:
       - "5672:5672"
     networks:
       - payever
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 3s
+      timeout: 3s
+      retries: 50
 
 volumes:
   db-data:
