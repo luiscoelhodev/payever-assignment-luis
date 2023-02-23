@@ -1,5 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,6 +14,7 @@ import { downloadAndSaveAvatar } from '../helpers/downloadAndSaveAvatar';
 import * as path from 'path';
 import { RabbitService } from '../rabbit/rabbitmq.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +26,10 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const errors = await validate(createUserDto);
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
     const howManyDocumentsInCollection = (await this.userModel.find()).length;
     const createdUser = new this.userModel({
       id: howManyDocumentsInCollection + 1,

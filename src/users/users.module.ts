@@ -4,7 +4,7 @@ import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './user.schema';
 import { HttpModule } from '@nestjs/axios';
-import { RabbitService } from 'src/rabbit/rabbitmq.service';
+import { RabbitService } from '../rabbit/rabbitmq.service';
 
 @Module({
   controllers: [UsersController],
