@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Response } from 'express';
 
 @Controller('api')
 export class UsersController {
@@ -26,8 +28,10 @@ export class UsersController {
   }
 
   @Get('/user/:userId/avatar') // #3
-  getUserAvatar(@Param('userId') userId: string) {
-    // return this.usersService.getUserAvatar(userId);
+  async getUserAvatar(@Param('userId') userId: string, @Res() res: Response) {
+    const base64Avatar = await this.usersService.getUserAvatar(+userId);
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.send(Buffer.from(base64Avatar, 'base64'));
   }
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

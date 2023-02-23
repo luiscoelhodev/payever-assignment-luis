@@ -6,6 +6,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './user.schema';
 import { lastValueFrom } from 'rxjs';
+import * as fs from 'fs';
+import { downloadAndSaveAvatar } from './helpers/downloadAndSaveAvatar';
 
 @Injectable()
 export class UsersService {
@@ -36,8 +38,23 @@ export class UsersService {
     return userFound;
   }
 
-  async getUserAvatar(userId: string): Promise<User[]> {
-    return this.userModel.find().exec();
+  async getUserAvatar(userId: number) {
+    const userFound = await this.userModel.findOne({ id: userId });
+    let avatar = userFound.avatar;
+
+    if (avatar.startsWith('http')) {
+      const avatarHash = await downloadAndSaveAvatar(avatar);
+      avatar = avatarHash;
+
+      await this.userModel.findByIdAndUpdate(userFound._id, {
+        $set: { avatar },
+      });
+    }
+
+    const avatarPath = `${process.cwd()}/src/avatars/${avatar}`;
+    const avatarBuffer = fs.readFileSync(avatarPath);
+    const base64Avatar = Buffer.from(avatarBuffer).toString('base64');
+    return base64Avatar;
   }
   // async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
   //   return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
