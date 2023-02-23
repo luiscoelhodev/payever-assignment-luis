@@ -8,12 +8,16 @@ import { lastValueFrom } from 'rxjs';
 import * as fs from 'fs';
 import { downloadAndSaveAvatar } from '../helpers/downloadAndSaveAvatar';
 import * as path from 'path';
+import { RabbitService } from '../rabbit/rabbitmq.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private httpService: HttpService,
+    private readonly rabbitService: RabbitService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -25,7 +29,20 @@ export class UsersService {
       email: createUserDto.email,
       avatar: createUserDto.avatar,
     });
-    return createdUser.save();
+    await createdUser.save();
+
+    // Send RabbitMQ message
+    await this.rabbitService.sendMessage({ userId: createdUser.id });
+
+    // Send email
+    await this.mailerService.sendMail({
+      to: createdUser.email,
+      subject: 'Welcome to our app!',
+      //template: './welcome',
+      context: { name: createdUser.first_name },
+    });
+
+    return createdUser;
   }
 
   async findOneUserFromExternalApi(userId: number): Promise<User> {

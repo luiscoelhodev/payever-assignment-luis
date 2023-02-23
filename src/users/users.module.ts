@@ -4,10 +4,11 @@ import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './user.schema';
 import { HttpModule } from '@nestjs/axios';
+import { RabbitService } from 'src/rabbit/rabbitmq.service';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, RabbitService],
   imports: [
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     HttpModule,
