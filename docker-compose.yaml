@@ -12,8 +12,7 @@ services:
       - '3000:3000'
     environment:
       MONGO_URI: "mongodb://mongo:27017/dummy_db"
-      MAILER_HOST: "sandbox.smtp.mailtrap.io"
-      MAILER_PORT: 2525
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     volumes:
       - app:/usr/src/app
     networks:
@@ -44,8 +43,8 @@ services:
       - payever
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
-      interval: 3s
-      timeout: 3s
+      interval: 5s
+      timeout: 5s
       retries: 50
 
 volumes:
