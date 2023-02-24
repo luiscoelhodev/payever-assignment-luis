@@ -30,6 +30,14 @@ export class UsersService {
     if (errors.length > 0) {
       throw new BadRequestException(errors);
     }
+
+    const userAlreadyExists = await this.userModel.findOne({
+      email: createUserDto.email,
+    });
+    if (userAlreadyExists) {
+      throw new BadRequestException('User already exists.');
+    }
+
     const howManyDocumentsInCollection = (await this.userModel.find()).length;
     const createdUser = new this.userModel({
       id: howManyDocumentsInCollection + 1,
