@@ -34,6 +34,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 })
 export class AppModule implements OnModuleInit {
   onModuleInit() {
-    console.log('Connected to database successfully!');
+    if (!process.env.TEST_ENV) {
+      console.log('Connected to database successfully!');
+    }
   }
 }
