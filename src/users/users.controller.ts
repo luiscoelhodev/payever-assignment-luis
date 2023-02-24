@@ -37,6 +37,7 @@ export class UsersController {
 
   @Delete('/user/:userId/avatar')
   async deleteUserAvatar(@Param('userId') userId: string) {
-    return this.usersService.deleteUserAvatar(+userId);
+    this.usersService.deleteUserAvatar(+userId);
+    return { message: 'User avatar deleted successfully!' };
   }
 }
