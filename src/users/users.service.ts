@@ -91,7 +91,7 @@ export class UsersService {
     return base64Avatar;
   }
 
-  async deleteUserAvatar(userId: number): Promise<void> {
+  async deleteUserAvatar(userId: number): Promise<User> {
     const user = await this.userModel.findOne({ id: userId });
     if (!user || !user.avatar) {
       throw new NotFoundException(
@@ -102,6 +102,11 @@ export class UsersService {
     await fs.promises.unlink(avatarPath);
 
     user.avatar = '';
-    await user.save();
+    const updatedUser = await user.save();
+    return updatedUser;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await this.userModel.find();
   }
 }

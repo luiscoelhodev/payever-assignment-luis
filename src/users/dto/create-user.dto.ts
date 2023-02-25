@@ -7,9 +7,6 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsEmpty()
-  readonly id: number;
-
   @IsNotEmpty()
   @IsString()
   readonly first_name: string;

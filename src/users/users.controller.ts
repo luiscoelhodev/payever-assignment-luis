@@ -33,11 +33,17 @@ export class UsersController {
     const base64Avatar = await this.usersService.getUserAvatar(+userId);
     res.setHeader('Content-Type', 'image/jpeg');
     res.send(Buffer.from(base64Avatar, 'base64'));
+    return base64Avatar;
   }
 
   @Delete('/user/:userId/avatar')
   async deleteUserAvatar(@Param('userId') userId: string) {
     this.usersService.deleteUserAvatar(+userId);
     return { message: 'User avatar deleted successfully!' };
+  }
+
+  @Get('/users')
+  async findAll() {
+    return this.usersService.getAllUsers();
   }
 }
