@@ -1,6 +1,6 @@
 # PAYEVER | BACK-END TASK
 
-This project was developed after a challenge proposed Payever for the position of Back-end Engineer. It is a task to create a simple REST application from scratch, using Nest.js, Typescript, MongoDB, RabbitMQ and communicating with an external API (<https://reqres.in/>) .
+This project was developed after a challenge proposed by Payever for the position of Back-end Engineer. It is a task to create a simple REST application from scratch, using Nest.js, Typescript, MongoDB, RabbitMQ and communicating with an external API (<https://reqres.in/>) .
 
 ## Content
 
@@ -11,12 +11,14 @@ This project was developed after a challenge proposed Payever for the position o
 &emsp;[2.2 Option 2: Running the project in Development mode](#option-2-running-the-project-in-development-mode)  
 [3. API Resources](#api-resources)  
 &emsp;[3.1 Endpoints](#endpoints)  
-[4. Technologies](#technologies)  
-[5. License](#license)  
+[4. Automated Tests](#automated-tests)  
+[5. Technologies](#technologies)  
+[6. Acknoledments](#acknoledgments)  
+[7. License](#license)  
 
 ## Getting Started
 
-The following instructions will help you get a copy of this project up and running on your local machine. You will be able to test it as Production/Staging or Development mode.
+The following instructions will help you get a copy of this project up and running on your local machine. You will be able to test it as Production or Development mode.
 
 Below you will also find relevant information about the API resources available (its endpoints) as well as the main technologies used to build it.
 
@@ -83,6 +85,22 @@ This route retrieves data from an external API and returns a user in JSON repres
 This route retrieves an image from the 'user.data' which is a URL at first. After the first request, it stores the image in the File System and generates a hash which is used to name the .jpg file and also the 'user.avatar' value. On following requests, the image is retrieved from the File System.
 4. DELETE /api/user/{userId}/avatar  
 This route removes the image file from the File System storage and also the 'user.avatar' entry in the database.
+5. GET /api/users
+This route retrieves all users stored in the database. It was an extra feature and mainly created for testing purposes to help visualize data in the MongoDB database.  
+
+## Automated Tests
+
+You can find test files in this applications that were written to verify the integrity and efficiency of the code and its funcionalities.  
+
+The Unit Test files for each code file can be found right next to it, in the same directory. The Integration Tests consist of a single file called '*users-integration.spec.ts*' inside the '*test*' folder.
+
+In order to run the tests, in any environment you are, just run:
+
+``` bash
+npm run test
+```
+
+*npm run test:cov* will give you the coverage of unit tests, which for this project is only missing the ones for the *users.service.ts* file methods.
 
 ## Technologies  
 
@@ -95,5 +113,10 @@ Main technologies in this project:
 - [Typescript](https://www.typescriptlang.org/) - *A strongly typed programming language that builds on JavaScript.*
 - [RabbitMQ](https://www.rabbitmq.com/) - *An open-source message-broker software.*
 
+## Acknoledgments
+
+I'd like to thank Payever and its representatives for providing me this challenge with a lot of support. This was not a complex project, but some technologies were relatively new to me during development, which took more time than expected.
+
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
