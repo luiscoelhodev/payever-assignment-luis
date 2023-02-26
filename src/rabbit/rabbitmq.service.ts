@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as amqp from 'amqplib';
+import 'dotenv/config';
 
 @Injectable()
 export class RabbitService {
@@ -8,13 +9,15 @@ export class RabbitService {
 
   async init() {
     this.connection = await amqp.connect(process.env.RABBITMQ_URL);
-    console.log('Connected to RabbitMQ successfully!');
+    // if (!process.env.TEST_ENV) {
+    //   console.log('Connected to RabbitMQ successfully!');
+    // }
     this.channel = await this.connection.createChannel();
     await this.channel.assertExchange('user_created', 'fanout');
   }
 
   async sendMessage(message: any) {
-    await this.channel.publish(
+    this.channel.publish(
       'user_created',
       '',
       Buffer.from(JSON.stringify(message)),
