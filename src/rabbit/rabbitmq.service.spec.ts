@@ -1,59 +1,54 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RabbitService } from './rabbitmq.service';
 import * as amqp from 'amqplib';
-import 'dotenv/config';
 
 describe('RabbitService', () => {
-  process.env.TEST_ENV = 'true';
-  let service: RabbitService;
-  let connection: amqp.Connection;
-  let channel: amqp.Channel;
+  let rabbitService: RabbitService;
+  let mockConnection: any;
+  let mockChannel: any;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
+    mockConnection = { createChannel: jest.fn() };
+    mockChannel = { assertExchange: jest.fn(), publish: jest.fn() };
+
+    jest.spyOn(amqp, 'connect').mockResolvedValue(mockConnection);
+    mockConnection.createChannel.mockResolvedValue(mockChannel);
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [RabbitService],
     }).compile();
 
-    service = module.get<RabbitService>(RabbitService);
-
-    connection = await amqp.connect(process.env.RABBITMQ_URL);
-    channel = await connection.createChannel();
-
-    await channel.assertExchange('user_created', 'fanout');
-    await channel.assertQueue('user_created_queue');
+    rabbitService = module.get<RabbitService>(RabbitService);
   });
 
-  // afterAll(async () => {
-  //   await channel.close();
-  //   await connection.close();
-  // });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  afterEach(async () => {
+    jest.clearAllMocks();
   });
 
   describe('init', () => {
-    it('should connect to RabbitMQ successfully', async () => {
-      await service.init();
-      expect(connection).toBeDefined();
-    });
+    it('should initialize connection and channel', async () => {
+      await rabbitService.init();
 
-    it('should create a channel and assert an exchange', async () => {
-      await service.init();
-      expect(channel).toBeDefined();
-      const assertExchangeResult = await channel.checkExchange('user_created');
-      expect(assertExchangeResult).toBeDefined();
+      expect(amqp.connect).toHaveBeenCalledWith(process.env.RABBITMQ_URL);
+      expect(mockConnection.createChannel).toHaveBeenCalled();
+      expect(mockChannel.assertExchange).toHaveBeenCalledWith(
+        'user_created',
+        'fanout',
+      );
     });
   });
 
   describe('sendMessage', () => {
-    it('should publish a message to the "user_created" exchange', async () => {
-      const message = { id: 1, name: 'Luis Coelho' };
-      const spy = jest.spyOn(service, 'sendMessage');
-      await service.sendMessage(message);
+    it('should publish a message to the channel', async () => {
+      const message = { username: 'john' };
+      await rabbitService.init();
+      await rabbitService.sendMessage(message);
 
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(message);
+      expect(mockChannel.publish).toHaveBeenCalledWith(
+        'user_created',
+        '',
+        Buffer.from(JSON.stringify(message)),
+      );
     });
   });
 });
